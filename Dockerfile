@@ -5,6 +5,7 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     PYTHONUNBUFFERED=1 \
+    UV_PYTHON=3.13 \
     PORT=8000
 
 COPY pyproject.toml uv.lock README.md ./
