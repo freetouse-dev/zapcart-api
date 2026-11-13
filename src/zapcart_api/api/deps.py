@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from zapcart_api.core import is_token_blacklisted
 from zapcart_api.core.enums import UserRole
 from zapcart_api.core.security import verify_token
 from zapcart_api.database import get_db
@@ -41,6 +42,13 @@ def get_current_user(
         detail="Could not validate credentials.",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    if is_token_blacklisted(credentials.credentials):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     payload = verify_token(credentials.credentials)
     if payload is None:

@@ -1,8 +1,14 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from zapcart_api.core import blacklist_token
 from zapcart_api.core.enums import UserRole
-from zapcart_api.core.security import create_access_token, hash_password, verify_password
+from zapcart_api.core.security import (
+    create_access_token,
+    hash_password,
+    verify_password,
+    verify_token,
+)
 from zapcart_api.models import User
 from zapcart_api.repositories import CartRepository, UserRepository
 from zapcart_api.schemas import LoginRequest, TokenResponse, UserRegister
@@ -57,3 +63,8 @@ class AuthService:
             }
         )
         return TokenResponse(access_token=access_token, token_type="bearer")
+
+    def logout(self, token: str) -> None:
+        payload = verify_token(token)
+        if payload and "exp" in payload:
+            blacklist_token(token, int(payload["exp"]))

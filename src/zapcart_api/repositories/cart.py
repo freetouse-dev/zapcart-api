@@ -45,6 +45,7 @@ class CartRepository:
             self.db.add(item)
         self.db.commit()
         self.db.refresh(item)
+        self.db.expire_all()
         return item
 
     def update_item_quantity(self, cart_id: int, product_id: int, quantity: int) -> Optional[CartItem]:
@@ -53,6 +54,7 @@ class CartRepository:
             item.quantity = quantity
             self.db.commit()
             self.db.refresh(item)
+            self.db.expire_all()
         return item
 
     def remove_item(self, cart_id: int, product_id: int) -> bool:
@@ -60,9 +62,11 @@ class CartRepository:
         if item:
             self.db.delete(item)
             self.db.commit()
+            self.db.expire_all()
             return True
         return False
 
     def clear_cart(self, cart_id: int) -> None:
         self.db.query(CartItem).filter(CartItem.cart_id == cart_id).delete()
         self.db.commit()
+        self.db.expire_all()

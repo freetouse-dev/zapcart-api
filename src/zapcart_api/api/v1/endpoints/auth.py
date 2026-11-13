@@ -1,6 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.security import HTTPAuthorizationCredentials
 
-from zapcart_api.api.deps import get_auth_service, get_current_user
+from zapcart_api.api.deps import (
+    get_auth_service,
+    get_current_user,
+    security,
+)
+from zapcart_api.core import limiter
 from zapcart_api.models import User
 from zapcart_api.schemas import (
     LoginRequest,
@@ -31,7 +37,9 @@ def register(
     status_code=status.HTTP_200_OK,
     summary="User login",
 )
+@limiter.limit("10/minute")
 def login(
+    request: Request,
     login_data: LoginRequest,
     auth_service: AuthService = Depends(get_auth_service),
 ) -> TokenResponse:
@@ -43,9 +51,14 @@ def login(
     status_code=status.HTTP_200_OK,
     summary="User logout",
 )
+@limiter.limit("10/minute")
 def logout(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     current_user: User = Depends(get_current_user),
+    auth_service: AuthService = Depends(get_auth_service),
 ) -> MessageResponse:
+    auth_service.logout(credentials.credentials)
     return MessageResponse(message="Successfully logged out.")
 
 @router.get(
