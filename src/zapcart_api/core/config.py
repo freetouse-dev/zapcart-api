@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,25 +8,19 @@ class Settings(BaseSettings):
     app_environment: str = "development"
     api_prefix: str = "/api/v1"
 
-    db_host: str = "localhost"
-    db_user: str = "postgres"
-    db_port: int = 5432
-    db_password: str = "your_database_password"
-    db_name: str = "your_database_name"
-    database_url_env: Optional[str] = Field(None, alias="database_url")
+    database_url_raw: str = Field(
+        "postgresql://postgres:password@localhost:5432/zapcart_db",
+        alias="database_url",
+    )
 
     @property
     def database_url(self) -> str:
-        if self.database_url_env:
-            url = self.database_url_env
-            if url.startswith("postgres://"):
-                return url.replace("postgres://", "postgresql+psycopg://", 1)
-            if url.startswith("postgresql://") and not url.startswith("postgresql+psycopg://"):
-                return url.replace("postgresql://", "postgresql+psycopg://", 1)
-            return url
-        return (
-            f"postgresql+psycopg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-        )
+        url = self.database_url_raw
+        if url.startswith("postgres://"):
+            return url.replace("postgres://", "postgresql+psycopg://", 1)
+        if url.startswith("postgresql://") and not url.startswith("postgresql+psycopg://"):
+            return url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return url
 
     jwt_secret_key: str = "your_jwt_secret_key"
     jwt_algorithm: str = "HS256"

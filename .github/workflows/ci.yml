@@ -38,11 +38,7 @@ jobs:
           --health-retries 5
 
     env:
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: password123
-      DB_NAME: zapcart_test
+      DATABASE_URL: postgresql://postgres:password123@localhost:5432/zapcart_test
       REDIS_URL: redis://localhost:6379/0
       JWT_SECRET_KEY: test_secret_key_for_ci_pipeline
 

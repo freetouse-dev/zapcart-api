@@ -4,11 +4,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=zapcart_app
-      - DB_PASSWORD=password
-      - DB_NAME=zapcart_db
+      - DATABASE_URL=postgresql://zapcart_app:password@db:5432/zapcart_db
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET_KEY=0b502f217687eb82b5aaf689198eee715e633045135f9eb8f3eb0005de922d12
       - PORT=8000
