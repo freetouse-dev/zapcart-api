@@ -28,7 +28,7 @@ def test_customer_cannot_create_product(client, customer_headers, test_category)
     assert response.status_code == 403
 
 def test_list_products(client, customer_headers, test_product):
-    response = client.get("/api/v1/products/", headers=customer_headers)
+    response = client.get(f"/api/v1/products/?category_id={test_product.category_id}", headers=customer_headers)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

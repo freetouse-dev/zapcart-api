@@ -1,0 +1,48 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=zapcart_app
+      - DB_PASSWORD=password
+      - DB_NAME=zapcart_db
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=0b502f217687eb82b5aaf689198eee715e633045135f9eb8f3eb0005de922d12
+      - PORT=8000
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: zapcart_app
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: zapcart_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zapcart_app -d zapcart_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
