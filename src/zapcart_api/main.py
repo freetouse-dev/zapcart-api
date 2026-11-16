@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Shutting down %s...", settings.app_name)
     engine.dispose()
+    print(f"Application shutting down.")
     logger.info("Database connection pool closed.")
 
 app = FastAPI(
